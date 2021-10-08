@@ -22,6 +22,7 @@ int patition_random_select_pivot(int arr[], int l, int r)
 	srand(time(NULL))
 	
 	swap(arr[l], arr[rand() % (r-l+1) + l]);
+	// 由于 pivot 的随机选择导致 相等情形下，排在后面的元素可能被提前，排序不稳定
 	int pivot = arr[l]
 	// arr[l+1...j] < v ; arr[j+1...i) > v
 	int j = l;

@@ -10,17 +10,18 @@ void merge(int arr[], int l, int mid, int r)
 	int k = mid+1;
 	for (int i=l; i<=r ; i++)
 	{
-		if (j>mid)
+		if (j > mid)
 		{
 			arr[i] = mem[k-l];
 			k++;
 		}
-		else if (k>r)
+		else if (k > r)
 		{
 			arr[i] = mem[j-l];
 			j++;
 		}
-		else if (mem[j-l] < mem[k-l])
+		// 等于情形下，保证了 左半边优先放入 arr，保持稳定性
+		else if (mem[j-l] <= mem[k-l])
 		{
 			arr[i] = mem[j-l];
 			j++;
