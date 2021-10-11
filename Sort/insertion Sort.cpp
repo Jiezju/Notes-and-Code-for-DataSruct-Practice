@@ -22,6 +22,7 @@ void insertionSort(int arr[], int n)
 	{
 		int e = arr[i];
 		
+		// arr[j-1] > e 表明只有大于才向前移动，等于情况什么都不做，保持了稳定排序
 		for (int j=i;j>0 && arr[j-1] > e; --j)
 		{
 			arr[j] = arr[j-1];
