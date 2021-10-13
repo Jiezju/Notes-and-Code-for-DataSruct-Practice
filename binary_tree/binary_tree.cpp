@@ -2,6 +2,7 @@
 #include <iostream>
 #include <queue>
 #include <stack>
+#include <cassert>
 
 using namespace std;
 
@@ -13,15 +14,15 @@ private:
 	{
 		Key key_;
 		Value value_;
-		Node* lchild_;
-		Node* rchild_;
+		Node* left_;
+		Node* right_;
 		
 		// 初始化方法
 		Node(Key key, Value value)
 		{
 			this->key_ = key;
 			this->value_ = value;
-			this->lchild_ = NULL;
+			this->left_ = NULL;
 			this->rchild_ = NULL;
 		}
 	}
@@ -41,9 +42,9 @@ private:
 			node->value_ = value;
 		}
 		else if (node->key_ < key)
-			node->right = _insert(node->right, key, value);
+			node->right_ = _insert(node->right_, key, value);
 		else // node.key_ > key
-			node->left = _insert(node->left, key, value);
+			node->left_ = _insert(node->left_, key, value);
 			
 		return node;
 	}
@@ -60,9 +61,9 @@ private:
 			return false;
 		}
 		else if (node->key_ < key)
-			return _contain(node->right, key, value);
+			return _contain(node->right_, key, value);
 		else // node.key_ > key
-			return _contain(node->left, key, vlaue);		
+			return _contain(node->left_, key, vlaue);		
 	}
 	
 	Value* _search(Node* node, Key key)
@@ -70,9 +71,9 @@ private:
 		if (node->key_ == key)
 			return &node->vlaue_;
 		else if (node->key_ < key)
-			return _search(node->right, key);
+			return _search(node->right_, key);
 		else
-			return _search(node->left, key);
+			return _search(node->left_, key);
 	}
 	
 	void _preorder(Node* node)
@@ -81,8 +82,8 @@ private:
 			return;
 		
 		cout<<node->key_<<endl;
-		_preorder(node->left);
-		_preorder(node->right);
+		_preorder(node->left_);
+		_preorder(node->right_);
 	}
 	
 	void _inOrder(Node* node)
@@ -92,9 +93,9 @@ private:
 			return;
 		}
 		
-		_inOrder(node->left);
+		_inOrder(node->left_);
 		cout<<node->key_<<endl;
-		_inOrder(node->right);
+		_inOrder(node->right_);
 	}
 	
 	void _postOrder(Node* node)
@@ -104,8 +105,8 @@ private:
 			return;
 		}
 		
-		_postOrder(node->left);
-		_postOrder(node->right);
+		_postOrder(node->left_);
+		_postOrder(node->right_);
 		cout<<node->key_<<endl;
 	}
 	
@@ -115,10 +116,96 @@ private:
 		if (node == NULL)
 			return;
 		
-		_destroy(node->left);
-		_destroy(node->right);
+		_destroy(node->left_);
+		_destroy(node->right_);
 		delete node;
 		count_--;
+	}
+	
+	Node* _getMin(Node* node)
+	{
+		if (node->left_ == NULL)
+			return node;
+		return _getMin(node->left_);
+	}
+	
+	Node* _getMax(Node* node)
+	{
+		if (node->right_ == NULL)
+			return node;
+		return _getMax(node->right_);`
+	}
+	
+	Node* _removeMin(Node* node)
+	{
+		if (node->left_ == NULL)
+		{
+			Node* newNode = node->right_;
+			delete node;
+			count_--;
+			return newNode;
+		}
+		
+		node->left_ = _removeMin(node->left_);
+		
+		return node;
+	}
+	
+	Node* _removeMax(Node* node)
+	{
+		if (node->right_ == NULL)
+		{
+			Node* newNode = node->left_;
+			delete node;
+			count_--;
+			return newNode;
+		}
+		
+		node->right_ = _removeMax(node->right_);
+		return node;
+	}
+	
+	Node* _remove(Node* node, Key key)
+	{
+		if (node == NULL)
+			return node;
+
+		if (node->key_ < key)
+			node->right_ = _remove(node->right_, key);
+		else if (node->key_ > key)
+			node->left_ = _remove(node->left_, key);
+		else
+		{
+			if (node->right_ == NULL)
+			{
+				Node* leftNode = node->left_;
+				delete node;
+				count_--;
+				return leftNode;
+			}
+			else if (node->left_ == NULL)
+			{
+				Node* rightNode = node->right_;
+				delete node;
+				count_--;
+				return rightNode;
+			}
+			else
+			{   // node->left_ == NULL && node->right_ == NULL
+				Node* successor = _getMin(node->right_);
+				
+				Node* newNode_cpy = new Node(successor->key_, successor->value_);
+				
+				newNode_cpy->left_ = node->left_; 
+				newNode_cpy->right = _removeMin(node->right_);
+				
+				delete node;
+				
+				return newNode_cpy;
+			}
+		}
+		
+		return node;
 	}
 
 public:
@@ -174,11 +261,11 @@ public:
 			cout<<node->key_<<endl;
 			que.pop();
 			
-			if (node->left)
-				que.push(node->left);
+			if (node->left_)
+				que.push(node->left_);
 			
-			if (node->right)
-				que.push(node->right);
+			if (node->right_)
+				que.push(node->right_);
 		}
 	}
 	
@@ -194,7 +281,7 @@ public:
 			{
 				s.push(node);
 				cout<<node->key_<<endl;
-				node = node->left;
+				node = node->left_;
 			}
 			
 			Node* tmp = s.top();
@@ -203,4 +290,35 @@ public:
 		
 	}
 	
-}
+	Key getMin()
+	{
+		assert(count_ > 0);
+		Node* minNode = _getMin(root_);
+		return minNode->key_;
+	}
+	
+	Key getMax()
+	{
+		assert(count_ > 0);
+		Node* maxNode = _getMax(root_);
+		return maxNode->key_;
+	}
+	
+	void removeMin()
+	{
+		assert(count_ > 0);
+		root_ = _removeMin(root_);
+	}
+	
+	void removeMax()
+	{
+		assert(count_ > 0);
+		root_ = _removeMax(root_);
+	}
+	
+	void remove(Key key)
+	{
+		root_ = _remove(root_, key);
+	}
+	
+};
