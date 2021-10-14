@@ -207,6 +207,44 @@ private:
 		
 		return node;
 	}
+	
+	Node* _floor(Node* node, Key key)
+	{	
+		if (node == NULL || node->key_ == key)
+			return node;
+		
+		else if (node->key_ > key)
+			return _floor(node->left, key);
+		else // node->key_ < key
+		{
+			// node 本身可能就是，继续向右子树找，找不到就返回 node
+			Node* t = _floor(node->right, key);
+			if (t)
+				return t;
+			else
+				return node;
+		}	
+	}
+	
+	Node* _ceil(Node* node, Key key)
+	{
+		if (node == NULL || node->key_ == key)
+		{
+			return node;
+		}
+		else if (node->key_ < key)
+		{
+			return _ceil(node->right, key);
+		}
+		else
+		{
+			Node* t = _ceil(node->left, key);
+			if (t)
+				return t;
+			else:
+				return node;
+		}
+	}
 
 public:
 	BST():root_(NULL), count_(0){}
@@ -319,6 +357,23 @@ public:
 	void remove(Key key)
 	{
 		root_ = _remove(root_, key);
+	}
+	
+	Key* floor(Key key)
+	{
+		if (Key < getMin())
+			return NULL;
+		Node* floorNode =  _floor(root_, key);
+		return &(floorNode->key_);
+	}
+	
+	Key* ceil(Key key)
+	{
+		if (key > getMax())
+			return NULL;
+			
+		Node* ceilNode = _ceil(root_, key);
+		return &(ceilNode->key_);
 	}
 	
 };
