@@ -5,7 +5,7 @@ class DenseGraph
 private:
 	int n_; // 节点数
 	int m_; // 边数
-	bool directed_;
+	bool directed_; // 是否有向
 	vector<vector<bool>> graph_;
 
 public:
@@ -47,5 +47,44 @@ public:
 		assert(v >= 0 && v < n_);
 		return graph_[w][v];
 	}
+	
+	class adjIterator
+	{
+	private:
+		DenseGraph g_;
+		int w_;
+		int index_;
+	
+	public:
+		adjIterator(DenseGraph G, int w):g_(G),w_(w),index_(-1)
+		{}
+		
+		~adjIterator = default;
+		
+		int begin()
+		{
+			index = -1;
+			return next();
+		}
+		
+		int next()
+		{
+			index_++;
+			for (;index_ < g_.V(); ++index_)
+				if (g_.graph_[w][index_])
+					return index_;
+			return -1;
+		}
+		
+		bool end()
+		{
+			int i = index_;
+			
+			for (int i+=1; i<g_.V(); ++i)
+				if (g_.graph_[w][i] == true)
+					return false;
+			return true;
+		}
+	};
 
 };

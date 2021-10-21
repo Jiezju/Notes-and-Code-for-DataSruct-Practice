@@ -49,4 +49,47 @@ public:
 			
 		m_++;
 	}
+	
+	// SparseGraph 的迭代器设计
+	class adjIterator
+	{
+	private:
+		SparseGraph G_;
+		int w_;
+		int index_;
+	
+	public:
+		adjIterator(SparseGraph g, int w): G_(g), w_(w), index_(0)
+		{}
+		
+		~adjIterator()
+		{}
+		
+		// 表示迭代器的首个元素
+		int begin()
+		{
+			index_ = 0;
+			if (index < g.graph_[w_].size())
+				return g.graph_[w_][index_];
+			return -1;
+		}
+		
+		// 表示迭代器的下一个元素
+		int next()
+		{
+			index_++;
+			if (index < g.graph_[w_].size())
+				return g.graph_[w_][index_];
+				
+			return -1
+		}
+		
+		// 查看迭代是否终止
+		bool end()
+		{
+			return index >= g.graph_[w_].size();
+		}
+	
+	};
+	
 };
