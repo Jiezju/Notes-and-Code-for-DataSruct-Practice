@@ -62,7 +62,7 @@ public:
 		}
 		
 		vec.clear();
-		while (s.empty())
+		while (!s.empty())
 		{
 			vec.push_back(s.top());
 			s.pop();
