@@ -1,18 +1,20 @@
 #include <cassert>
+#include "Edge.h"
 
+template<typename Weight>
 class SparseGraph
 {
 private:
 	int n_;
 	int m_;
 	bool directed_;
-	vector<vector<int>> graph_;
+	vector<vector<Edge<Weight>*>> graph_;
 
 public:
 	SparseGraph(int count, bool directed):n_(count),m_(0),directed_(directed)
 	{
 		for (int i=0; i< n_; ++i)
-			graph_.push_back(vector<int>());
+			graph_.push_back(vector<Edge<Weight>*>());
 	}
 	
 	~SparseGraph()
@@ -27,25 +29,32 @@ public:
 		assert(w >= 0 && w < n_);
 		assert(v >= 0 && v < n_);
 		
-		for (int i=0; i < graph_[w].size(); i++)
+		for (auto iter = graph_[w].begin(); iter != graph_[w].end(); iter++)
 		{
-			if (graph_[w][i] == v)
+			if (iter->other(w) == v)
 				return true;
 		}
+		
 		return false;
 	}
 	
-	void addEdge(int w, int v)
+	void addEdge(int w, int v, Weight wt)
 	{
 		assert(w >= 0 && w < n_);
 		assert(v >= 0 && v < n_);
 		
 		if (hasEdge(w, v))
-			return;
+		{
+			delete graph_[w][v];
+			if (!directed)
+				delete graph_[v][w];
+			m--;
+		}
 		
-		graph_[w].push_back(v);
+		Edge<Weight>* e = new Edge<Weight>(w, v, wt);
+		graph_[w].push_back(e);
 		if ( v != w && !directed_)
-			graph_[v].push_back(w);
+			graph_[v].push_back(e);
 			
 		m_++;
 	}
@@ -66,22 +75,22 @@ public:
 		{}
 		
 		// 表示迭代器的首个元素
-		int begin()
+		Edge<Weight>* begin()
 		{
 			index_ = 0;
 			if (index < g.graph_[w_].size())
 				return g.graph_[w_][index_];
-			return -1;
+			return NULL;
 		}
 		
 		// 表示迭代器的下一个元素
-		int next()
+		Edge<Weight>* next()
 		{
 			index_++;
 			if (index < g.graph_[w_].size())
 				return g.graph_[w_][index_];
 				
-			return -1;
+			return NULL;
 		}
 		
 		// 查看迭代是否终止
